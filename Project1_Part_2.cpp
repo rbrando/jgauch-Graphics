@@ -10,99 +10,114 @@ Code, Compile, Run and Debug online from anywhere in world.
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <sstream>
+#include <math.h>
+#include <stdlib.h>
+#ifdef MAC
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 using namespace std;
 
-// void init()
-// {
-//   glClearColor(0.0, 0.0, 0.0, 1.0);
-//   glMatrixMode(GL_PROJECTION);
-//   glLoadIdentity();
-//   glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-// }
+void init()
+{
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+}
 
 void set_color(float red, float green, float blue)
 {
     //cout << "Set Color - R: " << red << " G: " << green << " B: " << blue << endl;
-    cout << "glColor3f(" << red << "," << green << "," << blue << ");\n";
+    glColor3f(red, green, blue);
 }
 
-void draw_line(int size, int x1, int y1, int x2, int y2)
+void draw_line(int size, float x1, float y1, float x2, float y2)
 {
-    //cout << "Line - Size: " << line_size << " (x1,y1)=(" << point_x1 << "," << point_y1 << ") - (x2,y2)=(" << point_x2 << "," << point_y2 << ")" << endl; 
-    cout << "glLineWidth(" << size <<");\n";
-    cout << "glBegin(GL_LINES);\n";
-    cout << "glVertex3f(" << x1 << "," << y1 << ", 0);\n";
-    cout << "glVertex3f(" << x2 << "," << y2 << ", 0);\n";
-    cout << "glEnd();\n";
+    //cout << "Line - Size: " << line_size << " (x1,y1)=(" << point_x1 << "," << point_y1 << ") - (x2,y2)=(" << point_x2 << "," << point_y2 << ")" << endl;
+    glLineWidth(size);
+    glBegin(GL_LINES);
+    glVertex3f(x1,y1,0);
+    glVertex3f(x2,y2,0);
+    glEnd();
 }
 
-void draw_point(int size, int x, int y)
+void draw_point(int size, float x, float y)
 {
-    cout << "glPointSize(size);\n";
-    cout << "glBegin(GL_POINTS);\n";
-    cout << "glVertex3f(x, y, 0);\n";
-    cout << "glEnd();\n";
+    glPointSize(size);
+    glBegin(GL_POINTS);
+    glVertex3f(x, y, 0);
+    glEnd();
 }
 
-void draw_polygon(vector<int> coordinates)
+void draw_polygon(vector<float> coordinates)
 {
-    cout << "glBegin(GL_POLYGON);" << endl;
-    
+    glBegin(GL_POLYGON);
+
     int j = 1;
-    for (vector<int>::iterator it = coordinates.begin(); it != coordinates.end(); it++) 
+    float x;
+
+    for (vector<float>::iterator it = coordinates.begin(); it != coordinates.end(); it++)
     {
         if (j % 2 == 1)
-            cout << "glVertex3f(" << *it << ",";         
+            x = *it;
         else
-            cout << *it << ",0);" << endl;
+            glVertex3f(x,*it,0);
         j++;
     }
-    cout << "glEnd();" << endl;
+    glEnd();
 
 }
 
-int getInput()
+void getInput()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
+
     //Variables for set_color:
     float red;
     float blue;
     float green;
-    
+
     //Variables for draw_line/draw_point:
-    int line_size;
-    int point_x1;
-    int point_x2;
-    int point_y1;
-    int point_y2;
-    
+    float line_size;
+    float point_x1;
+    float point_x2;
+    float point_y1;
+    float point_y2;
+
     //variables for draw_polygon:
     int num_sides;
-    vector<int> coordinates;
+    vector<float> coordinates;
 
-    
+
 
     //General Purpose variables
     string input;
-    int count_points;
-    int max_point = 0;
+    string filename;
 
-    
-    printf("Please enter the file that contains your data point.\n");
-    //getline(cin,input);
-    
-    input = "set_color 1 1 1 \ndraw_line 3 0 0 0 500 \ndraw_line 3 0 0 500 0\ndraw_point 10 10 100\ndraw_polygon 3 1 2 3 4 5 6";
-    
+
+    printf("Please enter the file that contains your data point.\n:");
+    //cin >> filename;
+    filename = "chart.txt";
+
+    ifstream inputFile;
+    inputFile.open(filename.c_str());
+//    getline(inputFile,input);
+
+  do {
     //Parse input string
     istringstream iss(input);
     string new_command;
     int index = 0;
-    
+
     do {
          iss >> new_command;
 
-         if (new_command.compare("set_color") == 0) 
+         if (new_command.compare("set_color") == 0)
          {
             iss >> red;
             iss >> green;
@@ -110,8 +125,8 @@ int getInput()
             set_color(red,green,blue);
             index++;
          }
-         
-         else if (new_command.compare("draw_line") == 0) 
+
+         else if (new_command.compare("draw_line") == 0)
          {
             iss >> line_size;
             iss >> point_x1;
@@ -121,8 +136,8 @@ int getInput()
             draw_line(line_size, point_x1, point_y1, point_x2, point_y2);
             index++;
          }
-         
-         else if (new_command.compare("draw_point") == 0) 
+
+         else if (new_command.compare("draw_point") == 0)
          {
             iss >> line_size;
             iss >> point_x1;
@@ -130,13 +145,13 @@ int getInput()
             draw_point(line_size, point_x1, point_y1);
             index++;
          }
-         
-         else if (new_command.compare("draw_polygon") == 0) 
+
+         else if (new_command.compare("draw_polygon") == 0)
          {
             iss >> num_sides;
-            int new_coordinates;
+            float new_coordinates;
             for (int i=0; i < (2*num_sides);i++)
-            {   
+            {
                 new_coordinates = 0;
                 iss >> new_coordinates;
                 coordinates.insert(coordinates.end(),new_coordinates);
@@ -144,27 +159,28 @@ int getInput()
             index++;
             draw_polygon(coordinates);
          }
-         
+
          else
             cout << "Invalid command given" << endl;
-            
-        
+
+
     } while(iss);
-    
-    cout << "index: " << index << endl;
-    
-    return 0;
+  } while(getline(inputFile,input));
+
+    glFlush();
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    getInput();    
+   //getInput();
+   glutInit(&argc, argv);
+   glutInitWindowSize(500, 500);
+   glutInitWindowPosition(250, 250);
+   glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+   glutCreateWindow("Square");
+   glutDisplayFunc(getInput);
+   init();
+   glutMainLoop();
 
-    return 0;
+   return 0;
 }
-
-
-
-
-
-
