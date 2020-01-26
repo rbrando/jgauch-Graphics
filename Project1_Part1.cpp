@@ -46,7 +46,6 @@ float convertNum(float before)
     //Since our origin point would be at (-0.9,-0.9) we can use this to find the ratio of points
     //The ratio is found by assuming the max_point is the top of the graph.
     float after = -0.89 + ((before/max_point)*1.8);
-    cout << "After: " << after << endl;
     return after;
   }
 }
@@ -104,9 +103,37 @@ vector<float> getInput()
     return points;
 }
 
-void column_chart()
+void column_chart(vector<float> points)
 {
-    printf("Column");
+  //Chart origin at x:-0.9 y:-0.9
+  //Chart ends at x:0.9, y:0.9
+  ostringstream x_string;
+  ostringstream y_string;
+
+  writeFile("set_color 1 0.3 1\n");
+
+  float xtick = -0.88;
+  float tick_dist = (0.9 - (-0.88))/index;
+  for (vector<float>::iterator it = points.begin(); it != (points.end() - 1); ++it)
+  {
+      xtick = xtick + tick_dist;
+      x_string << xtick - 0.05;
+      y_string << convertNum(*it);
+
+      writeFile("draw_polygon 4 " + x_string.str() + " -0.88 ");
+      writeFile(x_string.str() + " " + y_string.str() + " ");
+
+      x_string.str("");
+      x_string << xtick + 0.05;
+      writeFile(x_string.str() + " " + y_string.str() + " " + x_string.str() + " -0.88 ");
+
+      x_string.str("");
+      x_string << xtick - 0.05;
+      writeFile(x_string.str() + " -0.88 "+ "\n");
+
+      x_string.str("");
+      y_string.str("");
+  }
 }
 
 void point_chart(vector<float> points)
@@ -134,14 +161,70 @@ void point_chart(vector<float> points)
     }
 }
 
-void line_chart()
+void line_chart(vector<float> points)
 {
-    printf("Line");
+    string line_size = "5";
+    ostringstream x_string;
+    ostringstream y_string;
+
+    writeFile("set_color 0.1 1 0.3\n");
+
+    float xtick = -0.88;
+    float tick_dist = (0.9 - (-0.88))/index;
+    string prev_x = "-0.9";
+    string prev_y = "-0.9";
+    for (vector<float>::iterator it = points.begin(); it != points.end(); ++it)
+    {
+        xtick = xtick + tick_dist;
+        x_string << xtick;
+        y_string << convertNum(*it);
+
+        writeFile("draw_line " + line_size + " " + prev_x + " " + prev_y +  " " + x_string.str() + " " + y_string.str() + "\n");
+
+        prev_x = x_string.str();
+        prev_y = y_string.str();
+
+        x_string.str("");
+        y_string.str("");
+    }
 }
 
-void area_chart()
+void area_chart(vector<float> points)
 {
-    printf("Area");
+  string line_size = "5";
+  ostringstream x_string;
+  ostringstream y_string;
+
+  writeFile("set_color 0.3 0.3 1\n");
+
+  float xtick = -0.88;
+  float tick_dist = (0.9 - (-0.88))/index;
+  string prev_y = "-0.88";
+
+  ostringstream num_sides;
+  ostringstream first_tick;
+  first_tick << (xtick + tick_dist);
+
+  string prev_x = first_tick.str();
+
+  num_sides << (points.size() + 1);
+  writeFile("draw_polygon " +  num_sides.str());
+  for (vector<float>::iterator it = points.begin(); it != points.end(); ++it)
+  {
+      xtick = xtick + tick_dist;
+      x_string << xtick;
+      y_string << convertNum(*it);
+
+      writeFile(" " + prev_x + " " + prev_y);// + x_string.str() + " " + y_string.str() + " ");
+
+      prev_x = x_string.str();
+      prev_y = y_string.str();
+
+      x_string.str("");
+      y_string.str("");
+  }
+
+  writeFile(" 0.9 -0.88 " + first_tick.str() + " -0.88\n" );
 }
 
 void base_chart()
@@ -197,14 +280,14 @@ int printMenu(vector<float> points)
 
     // cin >> chart_type;
     cout << "\n\n";
-    chart_type = 2;
+    chart_type = 4;
 
     base_chart();
 
     switch (chart_type)
     {
         case 1 :
-            column_chart();
+            column_chart(points);
             break;
 
         case 2 :
@@ -212,11 +295,11 @@ int printMenu(vector<float> points)
             break;
 
         case 3 :
-            line_chart();
+            line_chart(points);
             break;
 
         case 4 :
-            area_chart();
+            area_chart(points);
             break;
 
         default :
