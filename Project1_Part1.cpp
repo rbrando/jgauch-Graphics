@@ -18,6 +18,7 @@ using namespace std;
 
 int max_x = 0;
 int max_y = 0;
+float max_point;
 
 // Draw function options
 string LINE_WIDTH = "1";
@@ -34,27 +35,37 @@ void writeFile(string logIt)
   output.close();
 }
 
-float convertNum()
+float convertNum(float before)
 {
-  return 0;
+  if (before == max_point)
+    return 0.90;
+  else if (before == 0)
+    return -0.88;
+  else
+  {
+    //Since our origin point would be at (-0.9,-0.9) we can use this to find the ratio of points
+    //The ratio is found by assuming the max_point is the top of the graph.
+    float after = -0.89 + ((before/max_point)*1.8);
+    cout << "After: " << after << endl;
+    return after;
+  }
 }
 
 void clearFile()
 {
   ofstream output;
   output.open("chart.txt");
-  // output << ""
   output.close();
 }
 
-vector<int> getInput()
+vector<float> getInput()
 {
     string input;
     string filename;
-    int max_point = 0;
+    max_point = 0;
 
     //Array to store plot points
-    vector<int> points;
+    vector<float> points;
 
 
     printf("Please enter the file that contains your data point.\n:");
@@ -78,7 +89,7 @@ vector<int> getInput()
 
         //Used for validation:
         //cout << "The vector elements are: ";
-        //for (vector<int>::iterator it = points.begin(); it != points.end(); ++it)
+        //for (vector<float>::iterator it = points.begin(); it != points.end(); ++it)
         //    cout << *it << " ";
         //    cout << "\n";
 
@@ -98,9 +109,29 @@ void column_chart()
     printf("Column");
 }
 
-void point_chart()
+void point_chart(vector<float> points)
 {
-    printf("Point");
+    //Chart origin at x:-0.9 y:-0.9
+    //Chart ends at x:0.9, y:0.9
+    string point_size = "7";
+    ostringstream x_string;
+    ostringstream y_string;
+
+    writeFile("set_color 1 0.5 0.5\n");
+
+    float xtick = -0.88;
+    float tick_dist = (0.9 - (-0.88))/index;
+    printf("Point\n\n");
+    for (vector<float>::iterator it = points.begin(); it != points.end(); ++it)
+    {
+        xtick = xtick + tick_dist;
+        x_string << xtick;
+        y_string << convertNum(*it);
+
+        writeFile("draw_point " + point_size + " " + x_string.str() + " " + y_string.str() + "\n");
+        x_string.str("");
+        y_string.str("");
+    }
 }
 
 void line_chart()
@@ -153,7 +184,7 @@ void base_chart()
 
 }
 
-int printMenu(vector<int> points)
+int printMenu(vector<float> points)
 {
     int chart_type;
 
@@ -166,7 +197,7 @@ int printMenu(vector<int> points)
 
     // cin >> chart_type;
     cout << "\n\n";
-    chart_type = 1;
+    chart_type = 2;
 
     base_chart();
 
@@ -177,7 +208,7 @@ int printMenu(vector<int> points)
             break;
 
         case 2 :
-            point_chart();
+            point_chart(points);
             break;
 
         case 3 :
@@ -198,7 +229,7 @@ int printMenu(vector<int> points)
 int main()
 {
     clearFile();
-    vector<int> input = getInput();
+    vector<float> input = getInput();
     int chart_type = printMenu(input);
 
     cout << chart_type << "\n";
