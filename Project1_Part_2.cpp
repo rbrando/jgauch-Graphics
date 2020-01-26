@@ -61,12 +61,15 @@ void draw_polygon(vector<float> coordinates)
     int j = 1;
     float x;
 
+
     for (vector<float>::iterator it = coordinates.begin(); it != coordinates.end(); it++)
     {
         if (j % 2 == 1)
             x = *it;
         else
-            glVertex3f(x,*it,0);
+        {
+          glVertex3f(x,*it,0);
+        }
         j++;
     }
     glEnd();
@@ -91,7 +94,7 @@ void getInput()
 
     //variables for draw_polygon:
     int num_sides;
-    vector<float> coordinates;
+    //vector<float> coordinates;
 
 
 
@@ -99,9 +102,6 @@ void getInput()
     string input;
     string filename;
 
-
-    printf("Please enter the file that contains your data point.\n:");
-    //cin >> filename;
     filename = "chart.txt";
 
     ifstream inputFile;
@@ -109,6 +109,7 @@ void getInput()
 //    getline(inputFile,input);
 
   do {
+    vector<float> coordinates;
     //Parse input string
     istringstream iss(input);
     string new_command;
@@ -149,19 +150,16 @@ void getInput()
          else if (new_command.compare("draw_polygon") == 0)
          {
             iss >> num_sides;
-            float new_coordinates;
+            float new_coordinates = 0;
             for (int i=0; i < (2*num_sides);i++)
             {
                 new_coordinates = 0;
                 iss >> new_coordinates;
                 coordinates.insert(coordinates.end(),new_coordinates);
             }
-            index++;
             draw_polygon(coordinates);
+            index++;
          }
-
-         else
-            cout << "Invalid command given" << endl;
 
 
     } while(iss);
@@ -172,12 +170,11 @@ void getInput()
 
 int main(int argc, char *argv[])
 {
-   //getInput();
    glutInit(&argc, argv);
    glutInitWindowSize(500, 500);
    glutInitWindowPosition(250, 250);
    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
-   glutCreateWindow("Square");
+   glutCreateWindow("Chart");
    glutDisplayFunc(getInput);
    init();
    glutMainLoop();
