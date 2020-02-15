@@ -26,6 +26,12 @@ using namespace std;
 
 float xpos = 0.0;
 float ypos = 0.0;
+float xpos_1 = 0.0;
+float ypos_1 = 0.0;
+float xpos_2 = 0.0;
+float ypos_2 = 0.0;
+float x_vel = 0.0;
+float y_vel = 0.0;
 float zpos = 0.0;
 float size = 0.2;
 int counter = 0;
@@ -137,17 +143,30 @@ void cube(float midx, float midy, float midz)
 //---------------------------------------
 void mouse(int button, int state, int x, int y)
 {
-
    // Handle mouse down
-   static int xdown, ydown;
    if (state == GLUT_DOWN)
    {
-      xpos = ((2.0*x)/500.0)-1.0;
-      ypos = ((-2.0*y)/500.0)+1.0;
+      xpos_1 = ((2.0*x)/500.0)-1.0;
+      ypos_1 = ((-2.0*y)/500.0)+1.0;
 
       cout << "\nX Down: " << xpos << "\nY Down: " << ypos << endl;
 
       glutPostRedisplay();
+   }
+
+   else if (state == GLUT_UP)
+   {
+     xpos_2 = ((2.0*x)/500.0)-1.0;
+     ypos_2 = ((-2.0*y)/500.0)+1.0;
+     cout << "\nX Down: " << xpos_1 << "\nY Down: " << ypos_1 << endl;
+     cout << "\nX Up: " << xpos_2 << "\nY Up: " << ypos_2 << endl;
+     cout << "\n\nX Vel: " << x_vel << "\nY Vel: " << y_vel << endl;
+
+     x_vel = (xpos_1 - xpos_2)*0.01;
+     y_vel = (ypos_1 - ypos_2)*0.01;
+
+     glutPostRedisplay();
+
    }
 }
 
@@ -171,10 +190,14 @@ void display()
   origin_y_trans = (1.0 * ypos);
   rotate = rotate + 0.2;
 
+
+
   //Rotate the cube along all axis
   glTranslatef(origin_x_trans, origin_y_trans, 0.0);
   glRotatef(rotate, 1.0, 1.0 , 1.0);
   cube(0.0, 0.0, 0.0);
+  xpos+= x_vel;
+  ypos+= y_vel;
   glTranslatef(xpos, ypos, 0.0);
 
 
