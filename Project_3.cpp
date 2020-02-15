@@ -1,10 +1,3 @@
-//---------------------------------------
-// Program: cube3.cpp
-// Purpose: Demonstrate use of depth buffer
-//          when displaying 3D cubes.
-// Author:  John Gauch
-// Date:    September 2008
-//---------------------------------------
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +25,10 @@ float xpos_2 = 0.0;
 float ypos_2 = 0.0;
 float x_vel = 0.0;
 float y_vel = 0.0;
+
+float y_gravity = 0.0;
+float x_gravity = 0.0;
+
 float zpos = 0.0;
 float size = 0.2;
 int counter = 0;
@@ -143,13 +140,14 @@ void cube(float midx, float midy, float midz)
 //---------------------------------------
 void mouse(int button, int state, int x, int y)
 {
+  x_vel = 0.0;
+  y_vel = 0.0;
+
    // Handle mouse down
    if (state == GLUT_DOWN)
    {
       xpos_1 = ((2.0*x)/500.0)-1.0;
       ypos_1 = ((-2.0*y)/500.0)+1.0;
-
-      cout << "\nX Down: " << xpos << "\nY Down: " << ypos << endl;
 
       glutPostRedisplay();
    }
@@ -158,12 +156,9 @@ void mouse(int button, int state, int x, int y)
    {
      xpos_2 = ((2.0*x)/500.0)-1.0;
      ypos_2 = ((-2.0*y)/500.0)+1.0;
-     cout << "\nX Down: " << xpos_1 << "\nY Down: " << ypos_1 << endl;
-     cout << "\nX Up: " << xpos_2 << "\nY Up: " << ypos_2 << endl;
-     cout << "\n\nX Vel: " << x_vel << "\nY Vel: " << y_vel << endl;
 
-     x_vel = (xpos_1 - xpos_2)*0.01;
-     y_vel = (ypos_1 - ypos_2)*0.01;
+     x_vel = (xpos_1 - xpos_2)*0.02;
+     y_vel = (ypos_1 - ypos_2)*0.02;
 
      glutPostRedisplay();
 
@@ -188,18 +183,19 @@ void display()
 
   origin_x_trans = (1.0 * xpos);
   origin_y_trans = (1.0 * ypos);
-  rotate = rotate + 0.2;
+  if ( ypos > -0.98)
+    rotate = rotate + 0.2;
 
 
 
   //Rotate the cube along all axis
   glTranslatef(origin_x_trans, origin_y_trans, 0.0);
   glRotatef(rotate, 1.0, 1.0 , 1.0);
+
   cube(0.0, 0.0, 0.0);
   xpos+= x_vel;
   ypos+= y_vel;
   glTranslatef(xpos, ypos, 0.0);
-
 
 
   glFlush();
@@ -218,6 +214,24 @@ void motion(int x, int y)
 void idle()
 {
   // cout << "idle" << counter++ << endl;
+  if (xpos > 1.0 || xpos < -1.0)
+    x_vel = (-1 * x_vel);
+  else
+    x_vel = (x_vel/1.005);
+
+  if (ypos > 1.0)
+      y_vel = (-1 * y_vel);
+  else if (ypos > -1.0)
+  {
+    y_vel = (y_vel/1.005);
+    y_vel -= 0.00002;
+  }
+
+  else
+  {
+    y_vel = (-1 * y_vel);
+  }
+
   glutPostRedisplay();
 }
 
